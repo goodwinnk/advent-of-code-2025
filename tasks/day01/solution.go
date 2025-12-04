@@ -7,7 +7,7 @@ import (
 )
 
 func Part1() int {
-	text := util.MustReadInput(1, "task1.txt")
+	text := util.MustReadInput(1, "task.txt")
 	return Part1Text(text)
 }
 
@@ -44,7 +44,7 @@ func Part1Lined(lines []string) int {
 }
 
 func Part2() int {
-	text := util.MustReadInput(1, "task1.txt")
+	text := util.MustReadInput(1, "task.txt")
 	return Part2Text(text)
 }
 
