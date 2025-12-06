@@ -19,7 +19,7 @@ func Part1() int {
 	return Part1Text(input())
 }
 
-func Part2() int {
+func Part2() int64 {
 	return Part2Text(input())
 }
 
@@ -63,12 +63,10 @@ func Part1Text(input string) int {
 		switch e.Type {
 		case IntervalStart:
 			{
-				fmt.Printf("Interval start: %v\n", e.Range)
 				intervals++
 			}
 		case IntervalEnd:
 			{
-				fmt.Printf("Interval end: %v\n", e.Range)
 				intervals--
 				if intervals < 0 {
 					panic("negative intervals")
@@ -78,9 +76,6 @@ func Part1Text(input string) int {
 			{
 				if intervals != 0 {
 					fresh++
-					fmt.Printf("Fresh ID: %d\n", e.Id)
-				} else {
-					fmt.Printf("Not fresh ID: %d\n", e.Id)
 				}
 			}
 		}
@@ -89,8 +84,59 @@ func Part1Text(input string) int {
 	return fresh
 }
 
-func Part2Text(input string) int {
-	return Part1Text(input)
+func Part2Text(input string) int64 {
+	ranges, _, err := parse(input)
+	if err != nil {
+		panic(err)
+	}
+
+	events := make([]Event, 0, len(ranges)*2)
+	for _, r := range ranges {
+		events = append(events, Event{Type: IntervalStart, Id: r.Start, Range: r})
+		events = append(events, Event{Type: IntervalEnd, Id: r.End, Range: r})
+	}
+
+	sort.SliceStable(events, func(i, j int) bool {
+		return events[i].Id < events[j].Id ||
+			(events[i].Id == events[j].Id && events[i].Type < events[j].Type)
+	})
+
+	all := int64(0)
+	lastStart := int64(-1)
+	intervals := 0
+	for _, e := range events {
+		if e.Id < 0 {
+			panic("negative ID")
+		}
+		switch e.Type {
+		case IntervalStart:
+			{
+				intervals++
+				if intervals == 1 && lastStart < 0 {
+					lastStart = e.Id
+				}
+			}
+		case IntervalEnd:
+			{
+				intervals--
+				if intervals == 0 {
+					if lastStart < 0 {
+						panic("no start interval")
+					}
+					all += 1 + e.Id - lastStart
+					lastStart = -1
+				}
+
+				if intervals < 0 {
+					panic("negative intervals")
+				}
+			}
+		case ID:
+			panic("ID event")
+		}
+	}
+
+	return all
 }
 
 type Range struct {
