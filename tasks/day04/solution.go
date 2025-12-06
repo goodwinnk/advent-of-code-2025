@@ -6,9 +6,16 @@ import (
 	"strings"
 )
 
+func input() string {
+	return util.MustReadInput(4, "task.txt")
+}
+
 func Part1() int {
-	text := util.MustReadInput(4, "task.txt")
-	return Part1Text(text)
+	return Part1Text(input())
+}
+
+func Part2() int {
+	return Part2Text(input())
 }
 
 func countRoll(x int, y int, l int, maze []string) int {
@@ -27,15 +34,48 @@ func count3Column(x int, y int, l int, maze []string) int {
 
 func Part1Text(input string) int {
 	maze, l := parse(input)
-	// fmt.Println(strings.Join(maze, "\n"))
 
 	if len(maze) == 0 {
 		return 0
 	}
 
+	accessible, _ := removeAccessible(maze, l)
+
+	return accessible
+}
+
+func Part2Text(input string) int {
+	maze, l := parse(input)
+
+	if len(maze) == 0 {
+		return 0
+	}
+
+	sum := 0
+
+	for {
+		accessible, next := removeAccessible(maze, l)
+		sum += accessible
+		maze = next
+
+		if accessible == 0 {
+			break
+		}
+	}
+
+	// fmt.Println(strings.Join(maze, "\n"))
+
+	return sum
+}
+
+func removeAccessible(maze []string, l int) (int, []string) {
+	accessibleMap := make([]string, len(maze))
+
 	number := 0
 	for y, line := range maze {
-		for x := range line {
+		accessibleLine := []byte(line)
+
+		for x, ch := range line {
 			if countRoll(x, y, l, maze) == 1 {
 				nearby :=
 					count3Column(x-1, y, l, maze) +
@@ -44,13 +84,20 @@ func Part1Text(input string) int {
 						1
 
 				if nearby < 4 {
+					accessibleLine[x] = 'x'
 					number++
+				}
+			} else {
+				if ch == 'x' {
+					accessibleLine[x] = '.'
 				}
 			}
 		}
+
+		accessibleMap[y] = string(accessibleLine)
 	}
 
-	return number
+	return number, accessibleMap
 }
 
 func parse(input string) ([]string, int) {

@@ -26,4 +26,5 @@ func main() {
 
 	fmt.Println("-- Day 4", strings.Repeat("-", 30))
 	fmt.Printf("Part 1: %d\n", day04.Part1())
+	fmt.Printf("Part 2: %d\n", day04.Part2())
 }
