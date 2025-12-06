@@ -3,6 +3,8 @@ package day04
 import (
 	"AdventOfCode2025/internal/util"
 	"fmt"
+	"maps"
+	"slices"
 	"strings"
 )
 
@@ -18,18 +20,12 @@ func Part2() int {
 	return Part2Text(input())
 }
 
-func countRoll(x int, y int, l int, maze []string) int {
+func countRoll(x int, y int, l int, maze [][]byte) int {
 	if x < 0 || x >= l || y < 0 || y >= len(maze) || maze[y][x] != '@' {
 		return 0
 	}
 
 	return 1
-}
-
-func count3Column(x int, y int, l int, maze []string) int {
-	return countRoll(x, y-1, l, maze) +
-		countRoll(x, y, l, maze) +
-		countRoll(x, y+1, l, maze)
 }
 
 func Part1Text(input string) int {
@@ -39,9 +35,9 @@ func Part1Text(input string) int {
 		return 0
 	}
 
-	accessible, _ := removeAccessible(maze, l)
+	accessible := findAccessible(maze, l, allChecks(maze, l))
 
-	return accessible
+	return len(accessible)
 }
 
 func Part2Text(input string) int {
@@ -53,59 +49,85 @@ func Part2Text(input string) int {
 
 	sum := 0
 
-	for {
-		accessible, next := removeAccessible(maze, l)
-		sum += accessible
-		maze = next
+	check := allChecks(maze, l)
 
-		if accessible == 0 {
+	for {
+		accessible := findAccessible(maze, l, check)
+		sum += len(accessible)
+		if len(accessible) == 0 {
 			break
 		}
-	}
 
-	// fmt.Println(strings.Join(maze, "\n"))
+		nextCheck := make(map[Cell]bool)
+		for _, cell := range accessible {
+			roundCells := round(cell)
+			maze[cell.y][cell.x] = '.'
+			for _, rc := range roundCells {
+				nextCheck[rc] = true
+			}
+		}
+		check = slices.Collect(maps.Keys(nextCheck))
+	}
 
 	return sum
 }
 
-func removeAccessible(maze []string, l int) (int, []string) {
-	accessibleMap := make([]string, len(maze))
-
-	number := 0
-	for y, line := range maze {
-		accessibleLine := []byte(line)
-
-		for x, ch := range line {
-			if countRoll(x, y, l, maze) == 1 {
-				nearby :=
-					count3Column(x-1, y, l, maze) +
-						count3Column(x, y, l, maze) +
-						count3Column(x+1, y, l, maze) -
-						1
-
-				if nearby < 4 {
-					accessibleLine[x] = 'x'
-					number++
-				}
-			} else {
-				if ch == 'x' {
-					accessibleLine[x] = '.'
-				}
-			}
-		}
-
-		accessibleMap[y] = string(accessibleLine)
-	}
-
-	return number, accessibleMap
+type Cell struct {
+	x int
+	y int
 }
 
-func parse(input string) ([]string, int) {
+func round(cell Cell) [8]Cell {
+	return [8]Cell{
+		{cell.x - 1, cell.y - 1},
+		{cell.x - 1, cell.y},
+		{cell.x - 1, cell.y + 1},
+		{cell.x, cell.y - 1},
+		{cell.x, cell.y + 1},
+		{cell.x + 1, cell.y - 1},
+		{cell.x + 1, cell.y},
+		{cell.x + 1, cell.y + 1},
+	}
+}
+
+func allChecks(maze [][]byte, l int) []Cell {
+	checks := make([]Cell, l*len(maze))
+	for y := 0; y < len(maze); y++ {
+		for x := 0; x < l; x++ {
+			checks[y*l+x] = Cell{x, y}
+		}
+	}
+	return checks
+}
+
+func findAccessible(maze [][]byte, l int, check []Cell) []Cell {
+	accessible := make([]Cell, 0)
+
+	for _, cell := range check {
+		if countRoll(cell.x, cell.y, l, maze) == 1 {
+			roundCells := round(cell)
+			nearby := 0
+			for _, rc := range roundCells {
+				if countRoll(rc.x, rc.y, l, maze) == 1 {
+					nearby++
+				}
+			}
+
+			if nearby < 4 {
+				accessible = append(accessible, cell)
+			}
+		}
+	}
+
+	return accessible
+}
+
+func parse(input string) ([][]byte, int) {
 	input = strings.TrimSpace(strings.ReplaceAll(input, "\r\n", "\n"))
 	lines := strings.Split(input, "\n")
 
 	l := -1
-	var result []string
+	maze := make([][]byte, 0)
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
 		if trimmed == "" {
@@ -116,7 +138,7 @@ func parse(input string) ([]string, int) {
 		} else if l != len(trimmed) {
 			panic(fmt.Sprintf("Bad input line, expected size is %d", l))
 		}
-		result = append(result, trimmed)
+		maze = append(maze, []byte(trimmed))
 	}
-	return result, l
+	return maze, l
 }
