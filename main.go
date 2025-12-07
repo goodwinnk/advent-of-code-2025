@@ -6,6 +6,7 @@ import (
 	"AdventOfCode2025/tasks/day04"
 	"AdventOfCode2025/tasks/day05"
 	"AdventOfCode2025/tasks/day06"
+	"AdventOfCode2025/tasks/day07"
 	"fmt"
 	"strings"
 
@@ -37,4 +38,11 @@ func main() {
 	fmt.Println("-- Day 6", strings.Repeat("-", 30))
 	fmt.Printf("Part 1: %d\n", day06.Part1())
 	fmt.Printf("Part 2: %d\n", day06.Part2())
+
+	fmt.Println("-- Day 7", strings.Repeat("-", 30))
+	if v, err := day07.Part1(); err != nil {
+		panic(err)
+	} else {
+		fmt.Printf("Part 1: %d\n", v)
+	}
 }
