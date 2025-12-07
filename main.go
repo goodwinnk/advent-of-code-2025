@@ -40,9 +40,7 @@ func main() {
 	fmt.Printf("Part 2: %d\n", day06.Part2())
 
 	fmt.Println("-- Day 7", strings.Repeat("-", 30))
-	if v, err := day07.Part1(); err != nil {
-		panic(err)
-	} else {
-		fmt.Printf("Part 1: %d\n", v)
-	}
+	d0701, _ := day07.Part1()
+	d0702, _ := day07.Part2()
+	fmt.Printf("Part 1: %d\nPart 2: %d\n", d0701, d0702)
 }
