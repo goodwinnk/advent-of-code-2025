@@ -33,7 +33,7 @@ func Part1Text(input string) TPart1 {
 	groups := make([]Group, 0, len(operations))
 	for i, operation := range operations {
 		values := make([]int, 0, len(numbers))
-		for y := 0; y < len(numbers); y++ {
+		for y := range numbers {
 			values = append(values, numbers[y][i])
 		}
 		groups = append(groups, Group{values: values, operation: operation})
@@ -51,7 +51,7 @@ func Part2Text(input string) TPart1 {
 }
 
 func sumGroups(groups []Group) int64 {
-	result := int64(0)
+	var result int64
 
 	for _, group := range groups {
 		var groupValue int64
@@ -89,8 +89,7 @@ func parse(input string) (numbers [][]int, operations []Operation, err error) {
 
 	notEmptyLines := make([]string, 0, len(lines))
 	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed != "" {
+		if trimmed := strings.TrimSpace(line); trimmed != "" {
 			notEmptyLines = append(notEmptyLines, trimmed)
 		}
 	}
@@ -149,16 +148,16 @@ func parse2(input string) (groups []Group, err error) {
 
 	nonEmptyLines := make([]string, 0, len(lines))
 	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed != "" {
+		if trimmed := strings.TrimSpace(line); trimmed != "" {
 			nonEmptyLines = append(nonEmptyLines, line)
 		}
 	}
 
+	operationsLine := nonEmptyLines[len(nonEmptyLines)-1]
 	i := 0
-	for i < len(nonEmptyLines[len(nonEmptyLines)-1]) {
+	for i < len(operationsLine) {
 		var operation Operation
-		switch operationChar := nonEmptyLines[len(nonEmptyLines)-1][i]; operationChar {
+		switch operationChar := operationsLine[i]; operationChar {
 		case '+':
 			operation = Sum
 		case '*':
@@ -171,11 +170,12 @@ func parse2(input string) (groups []Group, err error) {
 		for {
 			number := 0
 			for y := 0; y < len(nonEmptyLines)-1; y++ {
-				var ch uint8
-				if i >= len(nonEmptyLines[y]) {
+				line := nonEmptyLines[y]
+				var ch byte
+				if i >= len(line) {
 					ch = '0'
 				} else {
-					ch = nonEmptyLines[y][i]
+					ch = line[i]
 				}
 				if ch >= '0' && ch <= '9' {
 					number = number*10 + int(ch-'0')
