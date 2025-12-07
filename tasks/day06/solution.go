@@ -30,36 +30,50 @@ func Part1Text(input string) TPart1 {
 		panic(err)
 	}
 
-	result := int64(0)
+	groups := make([]Group, 0, len(operations))
 	for i, operation := range operations {
-		var column int64
-		if operation == Multiply {
-			column = 1
-		} else {
-			column = 0
+		values := make([]int, 0, len(numbers))
+		for y := 0; y < len(numbers); y++ {
+			values = append(values, numbers[y][i])
 		}
-
-		for operandIndex := range numbers {
-			value := int64(numbers[operandIndex][i])
-			switch operation {
-			case Sum:
-				{
-					column += value
-				}
-			case Multiply:
-				{
-					column *= value
-				}
-			}
-		}
-		result += column
+		groups = append(groups, Group{values: values, operation: operation})
 	}
 
-	return result
+	return sumGroups(groups)
 }
 
 func Part2Text(input string) TPart1 {
-	return Part1Text(input)
+	groups, err := parse2(input)
+	if err != nil {
+		panic(err)
+	}
+	return sumGroups(groups)
+}
+
+func sumGroups(groups []Group) int64 {
+	result := int64(0)
+
+	for _, group := range groups {
+		var groupValue int64
+		if group.operation == Multiply {
+			groupValue = 1
+		} else {
+			groupValue = 0
+		}
+
+		for _, value := range group.values {
+			switch group.operation {
+			case Sum:
+				groupValue += int64(value)
+			case Multiply:
+				groupValue *= int64(value)
+			}
+		}
+
+		result += groupValue
+	}
+
+	return result
 }
 
 type Operation int
@@ -119,6 +133,65 @@ func parse(input string) (numbers [][]int, operations []Operation, err error) {
 		if len(values) != len(operations) {
 			return nil, nil, fmt.Errorf("invalid number of values: %d", len(values))
 		}
+	}
+
+	return
+}
+
+type Group struct {
+	values    []int
+	operation Operation
+}
+
+func parse2(input string) (groups []Group, err error) {
+	input = strings.TrimSpace(strings.ReplaceAll(input, "\r\n", "\n"))
+	lines := strings.Split(input, "\n")
+
+	nonEmptyLines := make([]string, 0, len(lines))
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed != "" {
+			nonEmptyLines = append(nonEmptyLines, line)
+		}
+	}
+
+	i := 0
+	for i < len(nonEmptyLines[len(nonEmptyLines)-1]) {
+		var operation Operation
+		switch operationChar := nonEmptyLines[len(nonEmptyLines)-1][i]; operationChar {
+		case '+':
+			operation = Sum
+		case '*':
+			operation = Multiply
+		default:
+			return nil, fmt.Errorf("invalid operation: %q", operationChar)
+		}
+
+		values := make([]int, 0)
+		for {
+			number := 0
+			for y := 0; y < len(nonEmptyLines)-1; y++ {
+				var ch uint8
+				if i >= len(nonEmptyLines[y]) {
+					ch = '0'
+				} else {
+					ch = nonEmptyLines[y][i]
+				}
+				if ch >= '0' && ch <= '9' {
+					number = number*10 + int(ch-'0')
+				} else if ch != ' ' {
+					return nil, fmt.Errorf("invalid character for number: %q", ch)
+				}
+			}
+			i++
+			if number == 0 {
+				break
+			}
+
+			values = append(values, number)
+		}
+
+		groups = append(groups, Group{values: values, operation: operation})
 	}
 
 	return

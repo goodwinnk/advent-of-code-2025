@@ -40,3 +40,22 @@ func TestPart1(t *testing.T) {
 
 	run1(t, tests, Part1Text)
 }
+
+func TestPart2(t *testing.T) {
+	tests := []test1{
+		{"sample",
+			"\n" +
+				"123 328  51 64 \n" +
+				" 45 64  387 23 \n" +
+				"  6 98  215 314\n" +
+				"*   +   *   +  \n",
+			3263827,
+		},
+		{"Final",
+			util.MustReadInput(day, "task.txt"),
+			9029931401920,
+		},
+	}
+
+	run1(t, tests, Part2Text)
+}
