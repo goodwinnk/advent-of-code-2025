@@ -13,34 +13,27 @@ import (
 	"AdventOfCode2025/tasks/day01"
 )
 
+func assume[T any](f func() (T, error)) T {
+	v, err := f()
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
+func day[P1 any, P2 any](day int, p1 P1, p2 P2) {
+	fmt.Println("-- Day", day, strings.Repeat("-", 30))
+	fmt.Println("Part 1:", p1)
+	fmt.Println("Part 2:", p2)
+}
+
 func main() {
 	fmt.Println("Advent of Code 2025")
-	fmt.Println("-- Day 1", strings.Repeat("-", 30))
-	fmt.Printf("Part 1: %d\n", day01.Part1())
-	fmt.Printf("Part 2: %d\n", day01.Part2())
-
-	fmt.Println("-- Day 2", strings.Repeat("-", 30))
-	fmt.Printf("Part 1: %d\n", day02.Part1())
-	fmt.Printf("Part 2: %d\n", day02.Part2())
-
-	fmt.Println("-- Day 3", strings.Repeat("-", 30))
-	fmt.Printf("Part 1: %d\n", day03.Part1())
-	fmt.Printf("Part 2: %d\n", day03.Part2())
-
-	fmt.Println("-- Day 4", strings.Repeat("-", 30))
-	fmt.Printf("Part 1: %d\n", day04.Part1())
-	fmt.Printf("Part 2: %d\n", day04.Part2())
-
-	fmt.Println("-- Day 5", strings.Repeat("-", 30))
-	fmt.Printf("Part 1: %d\n", day05.Part1())
-	fmt.Printf("Part 2: %d\n", day05.Part2())
-
-	fmt.Println("-- Day 6", strings.Repeat("-", 30))
-	fmt.Printf("Part 1: %d\n", day06.Part1())
-	fmt.Printf("Part 2: %d\n", day06.Part2())
-
-	fmt.Println("-- Day 7", strings.Repeat("-", 30))
-	d0701, _ := day07.Part1()
-	d0702, _ := day07.Part2()
-	fmt.Printf("Part 1: %d\nPart 2: %d\n", d0701, d0702)
+	day(1, day01.Part1(), day01.Part2())
+	day(2, day02.Part1(), day02.Part2())
+	day(3, day03.Part1(), day03.Part2())
+	day(4, day04.Part1(), day04.Part2())
+	day(5, day05.Part1(), day05.Part2())
+	day(6, day06.Part1(), day06.Part2())
+	day(7, assume(day07.Part1), assume(day07.Part2))
 }
