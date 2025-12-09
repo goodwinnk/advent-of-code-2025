@@ -45,3 +45,7 @@ func moduleRoot() string {
 	}
 	return "."
 }
+
+func Input(day int) string {
+	return MustReadInput(day, "task.txt")
+}
