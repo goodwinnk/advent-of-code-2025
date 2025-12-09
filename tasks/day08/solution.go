@@ -2,6 +2,7 @@ package day08
 
 import (
 	"AdventOfCode2025/internal/util"
+	"AdventOfCode2025/internal/util/coll"
 	"bufio"
 	"cmp"
 	"fmt"
@@ -38,10 +39,16 @@ func Part1Text(input string, number int) (result TPart1, err error) {
 		return 0, fmt.Errorf("parsing input: %w", err)
 	}
 
-	edges := distances(points)
-	slices.SortStableFunc(edges, func(a, b Edge) int {
-		return cmp.Compare(a.dist2, b.dist2)
-	})
+	edges := coll.NewSmallestN[Edge, int64](number)
+	for i := 0; i < len(points); i++ {
+		a := points[i]
+		for j := i + 1; j < len(points); j++ {
+			b := points[j]
+			distance2 := distance2(&a, &b)
+			edge := Edge{a, b, distance2}
+			edges.Push(edge, distance2)
+		}
+	}
 
 	componentsNumber := make(map[Point]int, len(points))
 	components := make(map[int]map[Point]bool, len(points))
@@ -50,8 +57,7 @@ func Part1Text(input string, number int) (result TPart1, err error) {
 		components[p.id] = map[Point]bool{p: true}
 	}
 
-	for i := 0; i < number; i++ {
-		edge := edges[i]
+	for _, edge := range edges.PopAllAccending() {
 		from, ok := componentsNumber[edge.from]
 		if !ok {
 			panic(fmt.Errorf("each point should be in a component %v", edge.from))
@@ -77,19 +83,26 @@ func Part1Text(input string, number int) (result TPart1, err error) {
 		}
 	}
 
-	sizes := make([]int, 0)
+	sizes := coll.NewBiggestN[int, int](3)
 	for _, c := range components {
-		sizes = append(sizes, len(c))
+		size := len(c)
+		sizes.Push(size, size)
 	}
 
-	slices.Sort(sizes)
-
 	mult := int64(1)
-	for _, v := range sizes[len(sizes)-3:] {
+	for _, v := range sizes.PopAllAccending() {
 		mult *= int64(v)
 	}
 
 	return mult, nil
+}
+
+func distance2(a *Point, b *Point) int64 {
+	dx := b.x - a.x
+	dy := b.y - a.y
+	dz := b.z - a.z
+
+	return dx*dx + dy*dy + dz*dz
 }
 
 func distances(points []Point) []Edge {
@@ -98,10 +111,9 @@ func distances(points []Point) []Edge {
 		a := points[i]
 		for j := i + 1; j < len(points); j++ {
 			b := points[j]
-			dx := b.x - a.x
-			dy := b.y - a.y
-			dz := b.z - a.z
-			edges = append(edges, Edge{a, b, dx*dx + dy*dy + dz*dz})
+			distance2 := distance2(&a, &b)
+			edge := Edge{a, b, distance2}
+			edges = append(edges, edge)
 		}
 	}
 	return edges
