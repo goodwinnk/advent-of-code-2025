@@ -1,4 +1,4 @@
-package day07
+package day08
 
 import (
 	"AdventOfCode2025/internal/util"
@@ -13,7 +13,7 @@ import (
 const day = 8
 
 type TPart1 = int64
-type TPart2 = int64
+type TPart2 = TPart1
 
 func input() string {
 	return util.MustReadInput(day, "task.txt")
@@ -38,18 +38,7 @@ func Part1Text(input string, number int) (result TPart1, err error) {
 		return 0, fmt.Errorf("parsing input: %w", err)
 	}
 
-	edges := make([]Edge, 0, len(points)*len(points)-1/2)
-	for i := 0; i < len(points); i++ {
-		a := points[i]
-		for j := i + 1; j < len(points); j++ {
-			b := points[j]
-			dx := b.x - a.x
-			dy := b.y - a.y
-			dz := b.z - a.z
-			edges = append(edges, Edge{a, b, dx*dx + dy*dy + dz*dz})
-		}
-	}
-
+	edges := distances(points)
 	slices.SortStableFunc(edges, func(a, b Edge) int {
 		return cmp.Compare(a.dist2, b.dist2)
 	})
@@ -103,8 +92,72 @@ func Part1Text(input string, number int) (result TPart1, err error) {
 	return mult, nil
 }
 
-func Part2Text(input string) (result TPart1, err error) {
-	return Part1Text(input, 0)
+func distances(points []Point) []Edge {
+	edges := make([]Edge, 0, len(points)*len(points)-1/2)
+	for i := 0; i < len(points); i++ {
+		a := points[i]
+		for j := i + 1; j < len(points); j++ {
+			b := points[j]
+			dx := b.x - a.x
+			dy := b.y - a.y
+			dz := b.z - a.z
+			edges = append(edges, Edge{a, b, dx*dx + dy*dy + dz*dz})
+		}
+	}
+	return edges
+}
+
+func Part2Text(input string) (TPart2, error) {
+	points, err := parse(input)
+	if err != nil {
+		return 0, fmt.Errorf("parsing input: %w", err)
+	}
+
+	edges := distances(points)
+	slices.SortStableFunc(edges, func(a, b Edge) int {
+		return cmp.Compare(a.dist2, b.dist2)
+	})
+
+	componentsNumber := make(map[Point]int, len(points))
+	components := make(map[int]map[Point]bool, len(points))
+	for _, p := range points {
+		componentsNumber[p] = p.id
+		components[p.id] = map[Point]bool{p: true}
+	}
+
+	edgeIndex := 0
+	var edge Edge
+	for len(components) > 1 {
+		edge = edges[edgeIndex]
+		edgeIndex++
+
+		from, ok := componentsNumber[edge.from]
+		if !ok {
+			panic(fmt.Errorf("each point should be in a component %v", edge.from))
+		}
+		to, ok := componentsNumber[edge.to]
+		if !ok {
+			panic(fmt.Errorf("each point should be in a component %v", edge.from))
+		}
+		if from != to {
+			var target int
+			var source int
+			if from < to {
+				target, source = from, to
+			} else {
+				target, source = to, from
+			}
+
+			for p := range components[source] {
+				componentsNumber[p] = target
+			}
+			maps.Copy(components[target], components[source])
+			delete(components, source)
+		}
+	}
+
+	result := edge.from.x * edge.to.x
+	return result, nil
 }
 
 type Point struct {
