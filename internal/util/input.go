@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 )
 
 func ReadInput(day int, name string) (string, error) {
@@ -48,4 +50,26 @@ func moduleRoot() string {
 
 func Input(day int) string {
 	return MustReadInput(day, "task.txt")
+}
+
+func ParseInts(s string) ([]int, error) {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return []int{}, nil
+	}
+
+	parts := strings.Split(s, ",")
+	nums := make([]int, 0, len(parts))
+	for _, token := range parts {
+		token = strings.TrimSpace(token)
+		if token == "" {
+			continue
+		}
+		n, err := strconv.Atoi(token)
+		if err != nil {
+			return nil, fmt.Errorf("parse int %q: %w", token, err)
+		}
+		nums = append(nums, n)
+	}
+	return nums, nil
 }
