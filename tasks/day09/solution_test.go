@@ -41,7 +41,7 @@ func TestPart1(t *testing.T) {
 		},
 		{"Final",
 			util.MustReadInput(day, "task.txt"),
-			0,
+			4786902990,
 		},
 	}
 
@@ -52,13 +52,20 @@ func TestPart2(t *testing.T) {
 	tests := []test1{
 		{"sample",
 			`
-            sample
+            7,1
+			11,1
+			11,7
+			9,7
+			9,5
+			2,5
+			2,3
+			7,3
             `,
-			0,
+			24,
 		},
 		{"Final",
 			util.MustReadInput(day, "task.txt"),
-			0,
+			1571016172,
 		},
 	}
 
