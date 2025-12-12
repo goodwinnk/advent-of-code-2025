@@ -10,6 +10,7 @@ import (
 	"AdventOfCode2025/tasks/day08"
 	"AdventOfCode2025/tasks/day09"
 	"AdventOfCode2025/tasks/day10"
+	"AdventOfCode2025/tasks/day11"
 	"fmt"
 	"strings"
 
@@ -22,6 +23,10 @@ func assume[T any](f func() (T, error)) T {
 		panic(err)
 	}
 	return v
+}
+
+func notsolved() (interface{}, error) {
+	return nil, nil
 }
 
 func day[P1 any, P2 any](day int, p1 P1, p2 P2) {
@@ -41,5 +46,6 @@ func main() {
 	day(7, assume(day07.Part1), assume(day07.Part2))
 	day(8, assume(day08.Part1), assume(day08.Part2))
 	day(9, assume(day09.Part1), assume(day09.Part2))
-	day(10, assume(day10.Part1), assume(day10.Part2))
+	day(10, assume(day10.Part1), assume(notsolved))
+	day(11, assume(day11.Part1), assume(day11.Part2))
 }

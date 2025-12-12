@@ -1,4 +1,4 @@
-package day00
+package day11
 
 import (
 	"AdventOfCode2025/internal/util"
@@ -43,7 +43,7 @@ func TestPart1(t *testing.T) {
 		},
 		{"Final",
 			util.MustReadInput(day, "task.txt"),
-			0,
+			470,
 		},
 	}
 

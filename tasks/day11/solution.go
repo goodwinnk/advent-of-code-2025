@@ -1,4 +1,4 @@
-package day00
+package day11
 
 import (
 	"AdventOfCode2025/internal/util"
@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-const day = 0
+const day = 11
 
-type TPart1 = int
+type TPart1 = int64
 type TPart2 = TPart1
 
 func Part1() (TPart1, error) {
@@ -26,9 +26,25 @@ func Part1Text(input string) (TPart1, error) {
 		return 0, fmt.Errorf("parsing input: %w", err)
 	}
 
-	println(len(graph))
+	paths := make(map[string]int64)
+	paths["out"] = 1
 
-	return 0, nil
+	visited := make(map[string]bool)
+	visited["out"] = true
+
+	var dfs func(name string) int64
+	dfs = func(name string) int64 {
+		if !visited[name] {
+			for _, next := range graph[name] {
+				paths[name] += dfs(next)
+			}
+			visited[name] = true
+		}
+
+		return paths[name]
+	}
+
+	return dfs("you"), nil
 }
 
 func Part2Text(input string) (TPart2, error) {
