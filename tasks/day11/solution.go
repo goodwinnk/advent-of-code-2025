@@ -48,7 +48,62 @@ func Part1Text(input string) (TPart1, error) {
 }
 
 func Part2Text(input string) (TPart2, error) {
-	return 0, nil
+	graph, err := parse(input)
+	if err != nil {
+		return 0, fmt.Errorf("parsing input: %w", err)
+	}
+
+	type Paths struct {
+		none int64
+		one  int64
+		two  int64
+	}
+
+	add := func(p *Paths, op *Paths) Paths {
+		return Paths{
+			none: p.none + op.none,
+			one:  p.one + op.one,
+			two:  p.two + op.two,
+		}
+	}
+
+	raise := func(p *Paths) Paths {
+		if p.two > 0 {
+			panic(fmt.Sprintf("already paths with two: %v", p))
+		}
+		return Paths{
+			none: 0,
+			one:  p.none,
+			two:  p.one,
+		}
+	}
+
+	paths := make(map[string]Paths)
+	paths["out"] = Paths{none: 1, one: 0, two: 0}
+
+	var dfs func(name string) Paths
+	dfs = func(name string) Paths {
+		p, ok := paths[name]
+		if !ok {
+			p = Paths{none: 0, one: 0, two: 0}
+
+			for _, next := range graph[name] {
+				nextP := dfs(next)
+				p = add(&p, &nextP)
+			}
+
+			if name == "fft" || name == "dac" {
+				p = raise(&p)
+			}
+
+			paths[name] = p
+		}
+
+		return p
+	}
+
+	r := dfs("svr")
+	return r.two, nil
 }
 
 func parse(input string) (map[string][]string, error) {
