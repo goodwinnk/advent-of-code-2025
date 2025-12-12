@@ -11,6 +11,7 @@ import (
 	"AdventOfCode2025/tasks/day09"
 	"AdventOfCode2025/tasks/day10"
 	"AdventOfCode2025/tasks/day11"
+	"AdventOfCode2025/tasks/day12"
 	"fmt"
 	"strings"
 
@@ -48,4 +49,5 @@ func main() {
 	day(9, assume(day09.Part1), assume(day09.Part2))
 	day(10, assume(day10.Part1), assume(notsolved))
 	day(11, assume(day11.Part1), assume(day11.Part2))
+	day(12, assume(day12.Part1), assume(notsolved))
 }
