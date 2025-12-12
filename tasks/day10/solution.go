@@ -2,9 +2,13 @@ package day10
 
 import (
 	"AdventOfCode2025/internal/util"
+	"AdventOfCode2025/internal/util/coll"
 	"bufio"
 	"fmt"
 	"strings"
+
+	"gonum.org/v1/gonum/mat"
+	"gonum.org/v1/gonum/optimize/convex/lp"
 )
 
 const day = 10
@@ -69,6 +73,50 @@ func Part1Text(input string) (TPart1, error) {
 }
 
 func Part2Text(input string) (TPart2, error) {
+	machines, err := parse(input)
+	if err != nil {
+		return 0, fmt.Errorf("parsing input: %w", err)
+	}
+
+	for _, m := range machines {
+		fmt.Println(m)
+
+		c := coll.NewSlice[float64](len(m.buttons), 1)
+
+		buttonsData := make([][]float64, 0, len(m.buttons))
+		for _, b := range m.buttons {
+			buttonVector := make([]float64, len(m.joltage))
+			for _, br := range b {
+				buttonVector[br] = 1
+			}
+			buttonsData = append(buttonsData, buttonVector)
+		}
+		fmt.Println(buttonsData)
+
+		AData := make([]float64, len(m.buttons)*len(m.joltage))
+		for i := 0; i < len(m.joltage); i++ {
+			for bi := range buttonsData {
+				AData[i*len(m.buttons)+bi] = buttonsData[bi][i]
+			}
+		}
+		A := mat.NewDense(len(m.joltage), len(m.buttons), AData)
+		fmt.Println("A", A)
+
+		b := make([]float64, len(m.joltage))
+		for i, jol := range m.joltage {
+			b[i] = float64(jol)
+		}
+		fmt.Println("b", b)
+
+		opt, x, err := lp.Simplex(c, A, b, 0, nil)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Printf("opt: %v\n", opt)
+			fmt.Printf("x: %v\n", x)
+		}
+	}
+
 	return 0, nil
 }
 

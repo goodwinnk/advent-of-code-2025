@@ -30,3 +30,15 @@ func Map[T any, V any](a []T, translate func(T) V) []V {
 	}
 	return mapped
 }
+
+func Fill[T any](slice []T, val T) {
+	for i := range slice {
+		slice[i] = val
+	}
+}
+
+func NewSlice[T any](size int, val T) []T {
+	slice := make([]T, size)
+	Fill(slice, val)
+	return slice
+}
