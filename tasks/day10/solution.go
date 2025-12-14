@@ -83,20 +83,24 @@ func Part2Text(input string) (TPart2, error) {
 
 		c := coll.NewSlice[float64](len(m.buttons), 1)
 
-		buttonsData := make([][]float64, 0, len(m.buttons))
-		for _, b := range m.buttons {
-			buttonVector := make([]float64, len(m.joltage))
-			for _, br := range b {
-				buttonVector[br] = 1
-			}
-			buttonsData = append(buttonsData, buttonVector)
+		problem := make([][]int, len(m.joltage))
+		for j := 0; j < len(m.joltage); j++ {
+			problem[j] = make([]int, len(m.buttons)+1)
+			problem[j][len(m.buttons)] = m.joltage[j]
 		}
-		fmt.Println(buttonsData)
+		for i, b := range m.buttons {
+			for _, br := range b {
+				problem[br][i] = 1
+			}
+		}
+		for _, r := range problem {
+			fmt.Println(r)
+		}
 
 		AData := make([]float64, len(m.buttons)*len(m.joltage))
 		for i := 0; i < len(m.joltage); i++ {
-			for bi := range buttonsData {
-				AData[i*len(m.buttons)+bi] = buttonsData[bi][i]
+			for b := 0; b < len(m.buttons); b++ {
+				AData[i*len(m.buttons)+b] = float64(problem[i][b])
 			}
 		}
 		A := mat.NewDense(len(m.joltage), len(m.buttons), AData)
