@@ -26,8 +26,10 @@ func assume[T any](f func() (T, error)) T {
 	return v
 }
 
-func notsolved() (interface{}, error) {
-	return nil, nil
+func notsolved(message string) func() (interface{}, error) {
+	return func() (interface{}, error) {
+		return message, nil
+	}
 }
 
 func day[P1 any, P2 any](day int, p1 P1, p2 P2) {
@@ -47,7 +49,7 @@ func main() {
 	day(7, assume(day07.Part1), assume(day07.Part2))
 	day(8, assume(day08.Part1), assume(day08.Part2))
 	day(9, assume(day09.Part1), assume(day09.Part2))
-	day(10, assume(day10.Part1), assume(notsolved))
+	day(10, assume(day10.Part1), assume(notsolved("Solved with Kotlin")))
 	day(11, assume(day11.Part1), assume(day11.Part2))
-	day(12, assume(day12.Part1), assume(notsolved))
+	day(12, assume(day12.Part1), assume(notsolved("No solution is needed")))
 }
